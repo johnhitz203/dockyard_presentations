@@ -13,11 +13,20 @@
 
 Lists are represented in Elixir as linked made up of cons cells. That is, each cell in the list is made of two parts; the value and a pointer to the next cell in the list with the last cell being an empty cell that has neither a value nor a pointer. The use of cons cells means that the values are not stored in contiguous memory locations but hold a sequence of pointers to values.
 
-<!-- livebook:{"force_markdown":true} -->
+```elixir
+list = [1 | [2 | [3]]]
+[head | tail] = list
+head
+tail
+hd(list)
+tl(list)
+```
 
 ```elixir
-  iex> list = [ "a" | [ 2 | [ :atom |[]]]]
-  ["a", 2, :3]
+list = [1, 2]
+[head | tail] = list
+[head | tail] = tail
+tail
 ```
 
 ### Charecteristics -
@@ -37,26 +46,57 @@ Storing an unknown or large quantities of data that needs to be ordered
 * Pattern match with [head | tail]
 
 * Kernel
+
   * hd/1 - returns the head of the list
   * tl/1 - returns the tail of the list
 
 * List Module
+
   * to_string/1 - converts a list to a string
   * zip/1 - Combines coresponding element from a list of lists into tuples
-    ```iex> List.zip([[1, 2, 3], ["a", "b", "c"]]
-        [{1, "a"}, {2, "b"}, {3, "c"}]```
     * insert_at/3 - Returns the list with a value added at a specific index
 
 * Enum
+
+  * map/2 - Returns a new list where every element of the original list has been updated by the function provided
+
+### Charecteristics -
+
+* Not stored in a contiguous memory locations
+* Fast/cheap to push and pop values to and from the head
+* In enfficient/slow to put or take values from the tail
+* Values are ordered
+* Implements Enumerable protocol
+
+#### Uses -
+
+Storing an unknown or large quantities of data that needs to be ordered
+
+#### Functionality
+
+* Pattern match with [head | tail]
+
+* Kernel
+
+  * hd/1 - returns the head of the list
+  * tl/1 - returns the tail of the list
+
+* List Module
+
+  * to_string/1 - converts a list to a string
+  * zip/1 - Combines coresponding element from a list of lists into tuples
+    * insert_at/3 - Returns the list with a value added at a specific index
+
+* Enum
+
   * map/2 - Returns a new list where every element of the original list has been updated by the function provided
 
 ```elixir
-list = [1 | [2 | [3]]]
-[head | tail] = list
-head
-tail
-hd(list)
-tl(list)
+list = ["a" | [2 | [:atom | []]]]
+```
+
+```elixir
+List.zip([[1, 2, 3], ["a", "b", "c"]])
 ```
 
 ### <ins>Tuples</ins>
@@ -77,7 +117,8 @@ Tuples are ordered fix-size sets of values that are stored in contiguous memory 
 * Can contain values of any type
 
 ### Uses
-  Tuples are commonly used to capture return values from impure functions that may return multiple values
+
+Tuples are commonly used to capture return values from impure functions that may return multiple values
 
 * I've been using it to pass multiple value to my functions to make it easy to use the `|>` operator.
 
@@ -90,11 +131,12 @@ Tuples are ordered fix-size sets of values that are stored in contiguous memory 
 ```
 
 ### Functionality
-- pattern matching
-- Kernel Module
-  - elem/2 - access by index 
-  - put_elem/3 - insert value at index
-  - tuple_size/1 - returns number of elements
+
+* pattern matching
+* Kernel Module
+  * elem/2 - access by index
+  * put_elem/3 - insert value at index
+  * tuple_size/1 - returns number of elements
 
 ```elixir
 tuple = {"a", 2, :atom}
@@ -175,34 +217,44 @@ Structs are extentions on top of maps that provide compile-time checks
 ### Characteristics
 
 * A Map with a `__stuct__` key
+
 * Provide compile time varification that data only contains fields that are defined in the struct
+
 * Accessed and updated in the same way that maps are
+
   ````elixir
-      iex> john = %User{}
-      %{role: "student", name: "John"}
-      
-      iex> john.name
-      "John"
+          iex> john = %User{}
+          %{role: "student", name: "John"}
+          
+          iex> john.name
+          "John"
 
-      iex> john = %{john | role: "Up and coming developer!"}
-      %User{role: "up and coming developer, name: "John"}
+          iex> john = %{john | role: "Up and coming developer!"}
+          %User{role: "up and coming developer, name: "John"}
 
-      iex> %{john | oops: :field}
-      ##(KeyError) key :oops not found in: %User{role: "Up and coming developer, name: "John"}
-      ```
+          iex> %{john | oops: :field}
+          ##(KeyError) key :oops not found in: %User{role: "Up and coming developer, name: "John"}
+          ```
   ````
+
 * Consist of bare maps meaning that non of the protocols implemented for Maps are available in available in Structs
+
 * Default values are allowed
+
   ````elixir
-      iex> defmodule User do
-      ...>  defstruct [email: ,name: "John", role: "student"]
-      ...> end
-      ```
-  - Default values are required to follow values without defaults or an error is raised
+          iex> defmodule User do
+          ...>  defstruct [email: ,name: "John", role: "student"]
+          ...> end
+          ```
+      - Default values are required to follow values without defaults or an error is raised
   ````
-      ** (SyntaxError) iex:107: unexpected expression after keyword list. Keyword lists must always come last in lists and maps.
-  ````
+
   ```
+  ** (SyntaxError) iex:107: unexpected expression after keyword list. Keyword lists must always come last in lists and maps.
+  ```
+
+  ````
+    ```
   ````
 
 ## Pattern Matching
@@ -267,15 +319,19 @@ MapSet is a data structure that can contain unique values of any type
 ### Chacteristics
 
 * All values are unique with attempts to add duplicate keys is a no-op
-* Built on %MapSet{} struct
-  * %MapStruct{} can be used to pattern to verify something is a MapSet
-    ```elixir
-         iex> match?(%mapSet{}, MapSet.new())
-         true
-         
-    ```
 
-    * Struct fields are private and require the functions in the MapSet modual to be used when operating on sets
+* Built on %MapSet{} struct
+
+  * %MapStruct{} can be used to pattern to verify something is a MapSet
+    `````elixir
+                 iex> match?(%mapSet{}, MapSet.new())
+                 true
+                 
+            ```
+
+        * Struct fields are private and require the functions in the MapSet modual to be used when operating on sets
+        ````
+    `````
 
 ```elixir
 mapset = MapSet.new([])
@@ -289,9 +345,4 @@ updated_set =
   |> MapSet.put(:two)
   |> MapSet.put({:two})
   |> MapSet.put(1)
-
-list = [1, 2]
-[head | tail] = list
-[head | tail] = tail
-tail
 ```
